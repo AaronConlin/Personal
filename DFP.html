@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doritos Catch Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: rgb(1, 22, 138);
+            color: white;
+        }
+        a {
+            color: yellow;
+            text-decoration: none;
+        }
+        a:hover {
+            color: goldenrod;
+            text-decoration: underline;
+        }
+        .container {
+            max-width: 500px;
+            margin: auto;
+            padding: 20px;
+            background: white;
+            color: black;
+            border-radius: 10px;
+            box-shadow: 2px 2px 15px rgba(0,0,0,0.2);
+        }
+        canvas {
+            background: lightblue;
+            display: block;
+            margin: 20px auto;
+            border: 2px solid black;
+        }
+        button {
+            background-color: #f56c2d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            margin-top: 10px;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #d94300;
+        }
+        .game-over {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            background: red;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1> Hello! <a href="personal.html">Back to Dorito Town!</a></h1>
+    <div class="container">
+        <h1>Doritos Catch Game</h1>
+        <p>Move the basket left and right to catch falling Doritos!</p>
+        <canvas id="gameCanvas" width="400" height="400"></canvas>
+        <p>Score: <span id="score">0</span></p>
+        <button id="startButton" onclick="startGame()">Start Game</button>
+        <div class="game-over" id="gameOverScreen">
+            <p>Game Over! Your score: <span id="finalScore">0</span></p>
+            <button onclick="startGame()">Restart</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const gameOverScreen = document.getElementById("gameOverScreen");
+        const scoreDisplay = document.getElementById("score");
+        const finalScoreDisplay = document.getElementById("finalScore");
+        const startButton = document.getElementById("startButton");
+
+        let basket = { x: 175, y: 350, width: 50, height: 20 };
+        let dorito = { x: Math.random() * 350, y: 0, width: 20, height: 20, speed: 6 };
+        let score = 0;
+        let gameInterval;
+
+        document.addEventListener("keydown", moveBasket);
+
+        function moveBasket(event) {
+            if (event.key === "ArrowLeft" && basket.x > 0) {
+                basket.x -= 20;
+            } else if (event.key === "ArrowRight" && basket.x < canvas.width - basket.width) {
+                basket.x += 20;
+            }
+        }
+
+        function drawBasket() {
+            ctx.fillStyle = "brown";
+            ctx.fillRect(basket.x, basket.y, basket.width, basket.height);
+        }
+
+        function drawDorito() {
+            ctx.fillStyle = "orange";
+            ctx.beginPath();
+            ctx.moveTo(dorito.x, dorito.y);
+            ctx.lineTo(dorito.x + 10, dorito.y + 20);
+            ctx.lineTo(dorito.x - 10, dorito.y + 20);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function updateGame() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawBasket();
+            drawDorito();
+            dorito.y += dorito.speed;
+            
+            if (dorito.y + dorito.height >= basket.y && dorito.x > basket.x && dorito.x < basket.x + basket.width) {
+                score++;
+                scoreDisplay.innerText = score;
+                resetDorito();
+            }
+
+            if (dorito.y > canvas.height) {
+                endGame();
+            }
+        }
+
+        function resetDorito() {
+            dorito.y = 0;
+            dorito.x = Math.random() * (canvas.width - dorito.width);
+        }
+
+        function startGame() {
+            score = 0;
+            scoreDisplay.innerText = score;
+            gameOverScreen.style.display = "none";
+            canvas.style.display = "block";
+            startButton.style.display = "none";
+            resetDorito();
+            clearInterval(gameInterval);
+            gameInterval = setInterval(updateGame, 30);
+        }
+
+        function endGame() {
+            clearInterval(gameInterval);
+            finalScoreDisplay.innerText = score;
+            gameOverScreen.style.display = "block";
+            canvas.style.display = "none";
+            startButton.style.display = "block";
+            print();
+        }
+    </script>
+</body>
+</html>
